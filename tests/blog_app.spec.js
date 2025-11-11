@@ -51,5 +51,18 @@ describe('Blog app', () => {
       await expect(page.getByText('New blog added')).toBeVisible()
       await expect(page.getByText('Chronicles of the Wild West - Clint Eastwood')).toBeVisible()
     })
+
+    describe('and one blog exists', () => {
+      beforeEach(async ({ page }) => {
+        await createBlog(page, 'Chronicles of the Wild West', 'Clint Eastwood', 'https://clinteastwood.com/chronicles')
+      })
+
+      test.only('blog can be liked', async ({ page }) => {
+        await page.getByRole('button', { name: 'Show details' }).click()
+        await expect(page.getByText('Likes: 0')).toBeVisible()
+        await page.getByRole('button', { name: 'Like' }).click()
+        await expect(page.getByText('Likes: 1')).toBeVisible()
+      })
+    })
   })
 })
