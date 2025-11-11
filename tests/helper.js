@@ -5,11 +5,11 @@ const loginWith = async (page, username, password) => {
 }
 
 const createBlog = async (page, title, author, url) => {
-    await page.getByRole('button', { name: 'Create New Blog' }).click()
     await page.getByLabel('Title').fill(title)
     await page.getByLabel('Author').fill(author)
     await page.getByLabel('URL').fill(url)
     await page.getByRole('button', { name: 'Create' }).click()
+    await page.getByText(title).waitFor() // must wait for each blog to render
 }
 
 const blogs = [
@@ -17,25 +17,25 @@ const blogs = [
         title: 'Chronicles of the Wild West',
         author: 'Clint Eastwood',
         url: 'https://clinteastwood.com/chronicles',
-        likes: 55
+        likes: 1
     },
     {
         title: 'ABC Murders',
         author: 'Agatha Christie',
         url: 'https://agathachristie.com/abc_murders',
-        likes: 66
+        likes: 2
     },
     {
         title: 'Concurrency in Go',
         author: 'Patrick Peterson',
         url: 'https://go.dev/concurrency/intro',
-        likes: 77
+        likes: 3
     },
     {
         title: 'Mission: Red Dawn',
         author: 'Comrade Dyatlov',
         url: 'https://redalert2.com/campaign/soviet/1',
-        likes: 88
+        likes: 4
     },
 ]
 

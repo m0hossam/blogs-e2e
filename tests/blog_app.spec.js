@@ -63,6 +63,7 @@ describe('Blog app', () => {
     })
 
     test('a new blog can be created', async ({ page }) => {
+      await page.getByRole('button', { name: 'Create New Blog' }).click()
       await createBlog(page, blogs[0].title, blogs[0].author, blogs[0].url)
       await expect(page.getByText('New blog added')).toBeVisible()
       await expect(page.getByText(`${blogs[0].title} - ${blogs[0].author}`)).toBeVisible()
@@ -70,6 +71,7 @@ describe('Blog app', () => {
 
     describe('and one blog exists', () => {
       beforeEach(async ({ page }) => {
+        await page.getByRole('button', { name: 'Create New Blog' }).click()
         await createBlog(page, blogs[0].title, blogs[0].author, blogs[0].url)
       })
 
@@ -105,7 +107,31 @@ describe('Blog app', () => {
 
     describe('and multiple blogs w/likes exist', () => {
       beforeEach(async ({ page }) => {
-        // create blogs and like them
+        await page.getByRole('button', { name: 'Create New Blog' }).click()
+        for (const blog of blogs) {
+          await createBlog(page, blog.title, blog.author, blog.url)
+          const blogHeader = page.getByText(blog.title)
+          await blogHeader.getByRole('button', { name: 'Show Details' }).click()
+          const likesButton = blogHeader.locator('..').getByRole('button', { name: 'Like' })
+          for (let i = 0; i < blog.likes; i++) {
+            await likesButton.click()
+            await page.waitForTimeout(200) // delay between clicks to avoid async issues
+          }
+        }
+      })
+
+      test('the blogs are sorted according to their likes in descending order', async ({ page }) => {
+        const sortedBlogs = blogs.map(b => ({ ...b }))
+        sortedBlogs.sort((a, b) => b.likes - a.likes);
+        const blogElements = page.locator('.blog-list .blog')
+        const headers = await blogElements.evaluateAll(es =>
+          es.map(e => {
+            const firstTextNode = e.firstChild?.textContent || '';
+            return firstTextNode.trim();
+          })
+        )
+        const expectedOrder = sortedBlogs.map(b => `${b.title} - ${b.author} Hide details`)
+        expect(headers).toEqual(expectedOrder)
       })
     })
   })
