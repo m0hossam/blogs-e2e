@@ -57,11 +57,19 @@ describe('Blog app', () => {
         await createBlog(page, 'Chronicles of the Wild West', 'Clint Eastwood', 'https://clinteastwood.com/chronicles')
       })
 
-      test.only('blog can be liked', async ({ page }) => {
+      test('blog can be liked', async ({ page }) => {
         await page.getByRole('button', { name: 'Show details' }).click()
         await expect(page.getByText('Likes: 0')).toBeVisible()
         await page.getByRole('button', { name: 'Like' }).click()
         await expect(page.getByText('Likes: 1')).toBeVisible()
+      })
+
+      test.only('blog can be deleted by its user', async ({ page }) => {
+        await page.getByRole('button', { name: 'Show details' }).click()
+        page.on('dialog', dialog => dialog.accept()) // Register a dialog handler to accept the delete confirmation dialog
+        await page.getByRole('button', { name: 'Remove' }).click()
+        await expect(page.getByText('Blog removed')).toBeVisible()
+        await expect(page.getByText('Chronicles of the Wild West - Clint Eastwood')).not.toBeVisible()
       })
     })
   })
