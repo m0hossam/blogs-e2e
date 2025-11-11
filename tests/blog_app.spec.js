@@ -1,5 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith, createBlog } = require('./helper')
+const { loginWith, createBlog, blogs } = require('./helper')
 
 const admin = {
   username: 'admin',
@@ -63,14 +63,14 @@ describe('Blog app', () => {
     })
 
     test('a new blog can be created', async ({ page }) => {
-      await createBlog(page, 'Chronicles of the Wild West', 'Clint Eastwood', 'https://clinteastwood.com/chronicles')
+      await createBlog(page, blogs[0].title, blogs[0].author, blogs[0].url)
       await expect(page.getByText('New blog added')).toBeVisible()
-      await expect(page.getByText('Chronicles of the Wild West - Clint Eastwood')).toBeVisible()
+      await expect(page.getByText(`${blogs[0].title} - ${blogs[0].author}`)).toBeVisible()
     })
 
     describe('and one blog exists', () => {
       beforeEach(async ({ page }) => {
-        await createBlog(page, 'Chronicles of the Wild West', 'Clint Eastwood', 'https://clinteastwood.com/chronicles')
+        await createBlog(page, blogs[0].title, blogs[0].author, blogs[0].url)
       })
 
       test('blog can be liked', async ({ page }) => {
@@ -85,10 +85,10 @@ describe('Blog app', () => {
         page.on('dialog', dialog => dialog.accept()) // Register a dialog handler to accept the delete confirmation dialog
         await page.getByRole('button', { name: 'Remove' }).click()
         await expect(page.getByText('Blog removed')).toBeVisible()
-        await expect(page.getByText('Chronicles of the Wild West - Clint Eastwood')).not.toBeVisible()
+        await expect(page.getByText(`${blogs[0].title} - ${blogs[0].author}`)).not.toBeVisible()
       })
 
-      test.only('only the user who added the blog sees its delete button', async ({ page }) => {
+      test('only the user who added the blog sees its delete button', async ({ page }) => {
         // admin can see the blog since he's the creator
         await page.getByRole('button', { name: 'Show details' }).click()
         await expect(page.getByRole('button', { name: 'Remove' })).toBeVisible()
@@ -100,6 +100,12 @@ describe('Blog app', () => {
         // other use CANNOT see the blog since he's NOT the creator
         await page.getByRole('button', { name: 'Show details' }).click()
         await expect(page.getByRole('button', { name: 'Remove' })).not.toBeVisible()
+      })
+    })
+
+    describe('and multiple blogs w/likes exist', () => {
+      beforeEach(async ({ page }) => {
+        // create blogs and like them
       })
     })
   })

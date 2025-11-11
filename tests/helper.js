@@ -12,4 +12,31 @@ const createBlog = async (page, title, author, url) => {
     await page.getByRole('button', { name: 'Create' }).click()
 }
 
-export { loginWith, createBlog }
+const blogs = [
+    {
+        title: 'Chronicles of the Wild West',
+        author: 'Clint Eastwood',
+        url: 'https://clinteastwood.com/chronicles',
+        likes: 55
+    },
+    {
+        title: 'ABC Murders',
+        author: 'Agatha Christie',
+        url: 'https://agathachristie.com/abc_murders',
+        likes: 66
+    },
+    {
+        title: 'Concurrency in Go',
+        author: 'Patrick Peterson',
+        url: 'https://go.dev/concurrency/intro',
+        likes: 77
+    },
+    {
+        title: 'Mission: Red Dawn',
+        author: 'Comrade Dyatlov',
+        url: 'https://redalert2.com/campaign/soviet/1',
+        likes: 88
+    },
+]
+
+export { loginWith, createBlog, blogs }
