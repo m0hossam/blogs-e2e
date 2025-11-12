@@ -109,14 +109,15 @@ describe('Blog app', () => {
       beforeEach(async ({ page }) => {
         await page.getByRole('button', { name: 'Create New Blog' }).click()
         for (const blog of blogs) {
+          // Code could be shorter by storing locators in consts but I'm afraid of stale nodes and flaky behavior
           await createBlog(page, blog.title, blog.author, blog.url)
-          const blogHeader = page.getByText(blog.title)
-          await blogHeader.getByRole('button', { name: 'Show Details' }).click()
-          const likesButton = blogHeader.locator('..').getByRole('button', { name: 'Like' })
+          await page.getByText(blog.title).getByRole('button', { name: 'Show Details' }).click()
           for (let i = 0; i < blog.likes; i++) {
-            await likesButton.click()
-            await page.waitForTimeout(200) // delay between clicks to avoid async issues
+            await page.getByText(blog.title).locator('..').getByRole('button', { name: 'Like' }).click()
+            // Ensure UI updates before the final assertion
+            await expect(page.getByText(blog.title).locator('..').getByText(`Likes: ${i + 1}`)).toBeVisible()
           }
+          await expect(page.getByText(blog.title).locator('..').getByText(`Likes: ${blog.likes}`)).toBeVisible()
         }
       })
 
@@ -124,10 +125,10 @@ describe('Blog app', () => {
         const sortedBlogs = blogs.map(b => ({ ...b }))
         sortedBlogs.sort((a, b) => b.likes - a.likes);
         const blogElements = page.locator('.blog-list .blog')
-        const headers = await blogElements.evaluateAll(es =>
-          es.map(e => {
-            const firstTextNode = e.firstChild?.textContent || '';
-            return firstTextNode.trim();
+        const headers = await blogElements.evaluateAll(elements =>
+          elements.map(e => {
+            const firstTextNode = e.firstChild?.textContent || ''
+            return firstTextNode.trim()
           })
         )
         const expectedOrder = sortedBlogs.map(b => `${b.title} - ${b.author} Hide details`)
